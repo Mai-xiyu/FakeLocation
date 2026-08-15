@@ -1,0 +1,60 @@
+name: 功能建议
+description: 提交新功能、交互优化或可维护性改进建议
+title: "[Feature] "
+labels: []
+body:
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已搜索过现有 issue，没有发现相同建议
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 建议方向
+      options:
+        - 点模拟
+        - 路线模拟
+        - 基站 / WiFi 模拟
+        - 运动传感器
+        - 黑名单 / 作用域
+        - UI / 设置页
+        - 日志与调试能力
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想解决什么问题
+      placeholder: 例如路线模拟时很难判断当前速度是否生效
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你希望如何改进
+      placeholder: 例如在主界面显示实时速度、剩余距离和当前坐标
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: 使用场景
+      placeholder: 这个建议会在什么情况下带来帮助
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充资料
+      placeholder: 可以附上截图、参考项目或交互草稿
+    validations:
+      required: false

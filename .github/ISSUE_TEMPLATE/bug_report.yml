@@ -1,0 +1,116 @@
+name: 缺陷反馈
+description: 提交可复现的错误、回归或兼容性问题
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请尽量提供完整复现信息。和定位、路线或某个 App 相关的问题，最好附上截图、录屏和日志。
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已确认这是最新公开版本仍可复现的问题
+          required: true
+        - label: 我已搜索过现有 issue，未发现相同问题
+          required: true
+        - label: 我愿意补充截图、日志或复现视频
+          required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题模块
+      options:
+        - 点模拟
+        - 路线模拟
+        - 基站 / WiFi 模拟
+        - 运动传感器
+        - 黑名单 / 作用域
+        - 兼容性
+        - UI / 设置页
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: fakelocation-version
+    attributes:
+      label: FakeLocation 版本
+      placeholder: 例如 2.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: target-app
+    attributes:
+      label: 目标 App（如适用）
+      placeholder: 例如 某地图 / 某打卡 App 及其版本号
+    validations:
+      required: false
+
+  - type: input
+    id: env
+    attributes:
+      label: 设备环境
+      placeholder: 例如 Android 15 / Xiaomi 14 / LSPosed 1.9.3 / KernelSU
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 按顺序写清楚入口、操作步骤、输入内容
+      placeholder: |
+        1. 在 LSPosed 启用模块并勾选系统进程
+        2. 打开 FakeLocation，选择点模拟并设定坐标
+        3. 打开目标 App
+        4. 出现 xxx
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      placeholder: 例如目标 App 应显示设定坐标，且轨迹随路线移动
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      placeholder: 例如 App 仍显示真实位置，或路线走完后坐标卡住
+    validations:
+      required: true
+
+  - type: textarea
+    id: page-info
+    attributes:
+      label: 模拟配置
+      description: 说明当时用的模式、坐标 / 路线、是否开启基站 WiFi 或传感器模拟、黑名单情况
+      placeholder: 例如 点模拟 / 路线模拟 / 黑名单未加入该 App
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与附件
+      description: 建议附上截图、录屏或日志。可在复现后导出 adb logcat -d | findstr /i "FakeLocation yinshibai location"
+      placeholder: 粘贴日志、截图链接或附件说明
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充说明
+      placeholder: 任何你认为有帮助的上下文，例如 HyperOS 版本、是否刚重启、是否和其他定位模块冲突
+    validations:
+      required: false

@@ -1,0 +1,112 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - reopened
+
+permissions:
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Auto label issue forms
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title || "";
+            const body = issue.body || "";
+
+            const managedLabels = [
+              { name: "type:bug", color: "d73a4a", description: "缺陷反馈" },
+              { name: "type:test-feedback", color: "1d76db", description: "公测反馈" },
+              { name: "type:feature", color: "a2eeef", description: "功能建议" },
+              { name: "status:needs-triage", color: "fbca04", description: "等待人工分诊" },
+              { name: "needs-info", color: "f9d0c4", description: "缺少必要复现信息" },
+              { name: "area:point-spoof", color: "0e8a16", description: "点模拟" },
+              { name: "area:route", color: "1b5e20", description: "路线模拟" },
+              { name: "area:cell-wifi", color: "2e8b57", description: "基站 / WiFi 模拟" },
+              { name: "area:sensors", color: "5319e7", description: "运动传感器" },
+              { name: "area:scope", color: "6f42c1", description: "黑名单 / 作用域" },
+              { name: "area:compatibility", color: "0366d6", description: "兼容性" },
+              { name: "area:settings-ui", color: "bfd4f2", description: "设置页与 UI" },
+              { name: "area:logging", color: "fef2c0", description: "日志与调试能力" }
+            ];
+
+            async function ensureLabel(label) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              }
+            }
+
+            for (const label of managedLabels) {
+              await ensureLabel(label);
+            }
+
+            function getFieldValue(fieldName) {
+              const escaped = fieldName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              const regex = new RegExp(`### ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n### |$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : "";
+            }
+
+            const nextLabels = new Set(["status:needs-triage"]);
+            if (/^\[Bug\]/i.test(title)) nextLabels.add("type:bug");
+            if (/^\[Test\]/i.test(title)) nextLabels.add("type:test-feedback");
+            if (/^\[Feature\]/i.test(title)) nextLabels.add("type:feature");
+
+            const areaValue = getFieldValue("问题模块") || getFieldValue("建议方向");
+            const areaMap = {
+              "点模拟": "area:point-spoof",
+              "路线模拟": "area:route",
+              "基站 / WiFi 模拟": "area:cell-wifi",
+              "运动传感器": "area:sensors",
+              "黑名单 / 作用域": "area:scope",
+              "兼容性": "area:compatibility",
+              "UI / 设置页": "area:settings-ui",
+              "日志与调试能力": "area:logging"
+            };
+            if (areaMap[areaValue]) {
+              nextLabels.add(areaMap[areaValue]);
+            }
+
+            const logsValue = getFieldValue("日志与附件");
+            const detailValue = getFieldValue("详细说明");
+            if ((nextLabels.has("type:bug") || nextLabels.has("type:test-feedback"))
+              && !logsValue
+              && (!detailValue || detailValue.length < 20)) {
+              nextLabels.add("needs-info");
+            }
+
+            const managedNames = new Set(managedLabels.map(label => label.name));
+            const existing = (issue.labels || [])
+              .map(label => typeof label === "string" ? label : label.name)
+              .filter(Boolean);
+            const preserved = existing.filter(label => !managedNames.has(label));
+            const finalLabels = [...new Set([...preserved, ...nextLabels])];
+
+            await github.rest.issues.setLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: finalLabels
+            });

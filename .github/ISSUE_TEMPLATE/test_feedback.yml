@@ -1,0 +1,91 @@
+name: 公测反馈
+description: 提交一轮测试结果，帮助快速收集兼容性与回归信息
+title: "[Test] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这个模板适合集中反馈一轮测试结果。即使没有报错，也欢迎提交“哪些功能正常”。
+
+  - type: input
+    id: fakelocation-version
+    attributes:
+      label: 测试版本
+      placeholder: 例如 2.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: device-env
+    attributes:
+      label: 设备与环境
+      placeholder: 例如 Android 15 / Xiaomi 14 / LSPosed 1.9.3 / KernelSU / HyperOS 3
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: cases
+    attributes:
+      label: 本次实际测试项目
+      options:
+        - label: 点模拟固定坐标
+        - label: 路线模拟行走 / 跑步
+        - label: 实时调速 / 步频
+        - label: GPS 抖动
+        - label: 基站 / WiFi 模拟
+        - label: 运动传感器同步
+        - label: 黑名单放行真实位置
+        - label: LSPosed 系统进程作用域
+        - label: 重启后配置保留
+        - label: 设置页 UI / 保存逻辑
+
+  - type: dropdown
+    id: result
+    attributes:
+      label: 总体结果
+      options:
+        - 全部正常
+        - 大部分正常，存在小问题
+        - 有明显回归
+        - 无法完成核心流程
+    validations:
+      required: true
+
+  - type: textarea
+    id: passed
+    attributes:
+      label: 正常的项目
+      placeholder: 例如点模拟坐标生效；黑名单 App 仍显示真实位置
+    validations:
+      required: false
+
+  - type: textarea
+    id: failed
+    attributes:
+      label: 异常的项目
+      placeholder: 例如路线模拟速度调了但轨迹不变；重启后模块配置丢失
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 详细说明
+      description: 重点写清楚出问题的 App、入口、是否稳定复现，以及截图或日志
+      placeholder: |
+        App：
+        入口：
+        复现频率：
+        现象：
+        附件：
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 额外建议
+      placeholder: 对文案、交互或日志输出的建议也可以写在这里
+    validations:
+      required: false
